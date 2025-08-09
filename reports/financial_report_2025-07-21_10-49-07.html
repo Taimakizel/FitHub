@@ -1,0 +1,67 @@
+
+    <!DOCTYPE html>
+    <html dir='rtl' lang='he'>
+    <head>
+        <meta charset='UTF-8'>
+        <title>FitHub - Financial Report</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+            .header { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
+            .report-info { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+            .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            .stat-value { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+            .positive { color: #4CAF50; }
+            .negative { color: #f44336; }
+            .neutral { color: #2196F3; }
+            .profit-section { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin: 20px 0; }
+            th, td { padding: 12px; text-align: right; border-bottom: 1px solid #ddd; }
+            th { background: #f8f9fa; font-weight: bold; }
+            .footer { text-align: center; color: #666; margin-top: 30px; font-size: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class='header'>
+            <h1>FitHub - דוח כלכלי</h1>
+            <p>נוצר בתאריך: 2025-07-21 10:49:04</p>
+        </div>
+        
+        <div class='report-info'>
+            <h3>סיכום כלכלי כללי</h3>
+            <p>דוח זה מכיל את כל הנתונים הכלכליים העדכניים של חדר הכושר FitHub</p>
+        </div>
+        
+        <div class='stats-grid'>
+            <div class='stat-card'>
+                <div class='stat-value positive'>₪357.90</div>
+                <div>סה"כ הכנסות</div>
+            </div>
+            <div class='stat-card'>
+                <div class='stat-value negative'>₪1,000.00</div>
+                <div>סה"כ הוצאות</div>
+            </div>
+            <div class='stat-card'>
+                <div class='stat-value neutral'>₪563.76</div>
+                <div>תשלומים למאמנים (40%)</div>
+            </div>
+            <div class='stat-card'>
+                <div class='stat-value negative'>₪-1,205.86</div>
+                <div>רווח נקי</div>
+            </div>
+        </div>
+        
+        <div class='profit-section'>
+            <h3>פירוט רווח נקי</h3>
+            <p><strong>הכנסות:</strong> +₪357.90</p>
+            <p><strong>תשלומים למאמנים:</strong> -₪563.76</p>
+            <p><strong>הוצאות תפעוליות:</strong> -₪1,000.00</p>
+            <hr>
+            <p><strong>רווח נקי:</strong> <span class='negative'>₪-1,205.86</span></p>
+        </div>
+        <div class='footer'>
+            <p>דוח זה נוצר אוטומטיטית על ידי מערכת FitHub</p>
+            <p>לשאלות נוספות, צרו קשר עם המנהל</p>
+        </div>
+    </body>
+    </html>
