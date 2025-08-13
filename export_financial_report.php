@@ -25,20 +25,20 @@ if ($userRole != 2) {
     exit();
 }
 
-// חישוב כל הנתונים הכלכליים
+// Calculate all financial data
 $reportData = [];
 
-// סה"כ הכנסות מאימונים
+// Total revenue from trainings
 $revenueQuery = "SELECT SUM(final_price) as total_revenue FROM registeration";
 $revenueResult = $con->query($revenueQuery);
 $reportData['total_revenue'] = $revenueResult->fetch_assoc()['total_revenue'] ?? 0;
 
-// סה"כ הוצאות
+// Total expenses
 $expensesQuery = "SELECT SUM(amount) as total_expenses FROM expenses";
 $expensesResult = $con->query($expensesQuery);
 $reportData['total_expenses'] = $expensesResult->fetch_assoc()['total_expenses'] ?? 0;
 
-// חישוב תשלומים למאמנים - לפי שכר מהמסד נתונים
+// Calculate trainer payments - based on salary from DB
 $trainerPayments = 0;
 $trainingsQuery = "
     SELECT t.trainingNum, t.Price, t.Participants, t.TrainerId, u.salary 
@@ -51,25 +51,25 @@ $trainingsResult = $con->query($trainingsQuery);
 if ($trainingsResult && $trainingsResult->num_rows > 0) {
     while ($training = $trainingsResult->fetch_assoc()) {
         $totalTrainingRevenue = $training['Price'] * $training['Participants'];
-        // אם יש שכר מוגדר למאמן, נשתמש בו, אחרת 40%
+        // If salary is defined, use it; otherwise use 40%
         if (isset($training['salary']) && $training['salary'] > 0) {
-            $trainerPayments += $training['salary'] * $training['Participants']; // שכר לפי משתתף
+            $trainerPayments += $training['salary'] * $training['Participants']; // Salary per participant
         } else {
-            $trainerPayments += $totalTrainingRevenue * 0.4; // ברירת מחדל
+            $trainerPayments += $totalTrainingRevenue * 0.4; // Default
         }
     }
 }
 $reportData['trainer_payments'] = $trainerPayments;
 
-// רווח נקי
+// Net profit
 $reportData['net_profit'] = $reportData['total_revenue'] - $reportData['total_expenses'] - $reportData['trainer_payments'];
 
-// ביטולים והחזרים
+// Cancellations and refunds
 $cancellationsQuery = "SELECT COUNT(*) as total_cancellations, SUM(refund_amount) as total_refunds FROM cancellations";
 $cancellationsResult = $con->query($cancellationsQuery);
 $cancellationData = $cancellationsResult ? $cancellationsResult->fetch_assoc() : ['total_cancellations' => 0, 'total_refunds' => 0];
 
-// נתונים מפורטים של מאמנים
+// Trainer performance details
 $trainerDetailsQuery = "
     SELECT 
         u.FirstName, 
@@ -90,7 +90,7 @@ $trainerDetailsQuery = "
 ";
 $trainerDetailsResult = $con->query($trainerDetailsQuery);
 
-// הוצאות לפי קטגוריה
+// Expenses by category
 $expensesCategoryQuery = "
     SELECT 
         expense_type,
@@ -102,13 +102,13 @@ $expensesCategoryQuery = "
 ";
 $expensesCategoryResult = $con->query($expensesCategoryQuery);
 
-// יצירת תוכן ה-HTML של הדוח
+// Generate HTML report content
 $reportDate = date('d/m/Y H:i');
 $reportMonth = date('F Y');
 
 $htmlContent = "
 <!DOCTYPE html>
-<html dir='rtl'>
+<html dir='ltr'>
 <head>
     <meta charset='UTF-8'>
     <style>
@@ -127,43 +127,43 @@ $htmlContent = "
 </head>
 <body>
     <div class='header'>
-        <h1>🏋️ FitHub - דוח כלכלי חודשי</h1>
-        <p>תאריך הפקת הדוח: $reportDate</p>
-        <p>תקופת הדוח: $reportMonth</p>
+        <h1>🏋️ FitHub - Monthly Financial Report</h1>
+        <p>Report generated on: $reportDate</p>
+        <p>Report period: $reportMonth</p>
     </div>
 
     <div class='summary'>
-        <h2>📊 סיכום כלכלי</h2>
+        <h2>📊 Financial Summary</h2>
         <div style='text-align: center;'>
             <div class='stat'>
-                <h3>💰 סה\"כ הכנסות</h3>
+                <h3>💰 Total Revenue</h3>
                 <div class='positive'>₪" . number_format($reportData['total_revenue'], 2) . "</div>
             </div>
             <div class='stat'>
-                <h3>💸 תשלומים למאמנים</h3>
+                <h3>💸 Trainer Payments</h3>
                 <div class='neutral'>₪" . number_format($reportData['trainer_payments'], 2) . "</div>
             </div>
             <div class='stat'>
-                <h3>📉 הוצאות</h3>
+                <h3>📉 Expenses</h3>
                 <div class='negative'>₪" . number_format($reportData['total_expenses'], 2) . "</div>
             </div>
             <div class='stat'>
-                <h3>📈 רווח נקי</h3>
+                <h3>📈 Net Profit</h3>
                 <div class='" . ($reportData['net_profit'] >= 0 ? 'positive' : 'negative') . "'>₪" . number_format($reportData['net_profit'], 2) . "</div>
             </div>
         </div>
     </div>
 
-    <h2>👥 פילוח ביצועים של מאמנים</h2>
+    <h2>👥 Trainer Performance Breakdown</h2>
     <table>
         <tr>
-            <th>שם המאמן</th>
-            <th>שכר לשעה</th>
-            <th>מספר אימונים</th>
-            <th>סה\"כ משתתפים</th>
-            <th>הכנסות שיצר</th>
-            <th>תשלום למאמן</th>
-            <th>רווח לחדר כושר</th>
+            <th>Trainer Name</th>
+            <th>Hourly Salary</th>
+            <th>Total Trainings</th>
+            <th>Total Participants</th>
+            <th>Total Revenue Generated</th>
+            <th>Trainer Payment</th>
+            <th>Gym Profit</th>
         </tr>";
 
 if ($trainerDetailsResult && $trainerDetailsResult->num_rows > 0) {
@@ -171,7 +171,7 @@ if ($trainerDetailsResult && $trainerDetailsResult->num_rows > 0) {
         $gymProfit = $trainer['total_revenue'] - $trainer['trainer_payment'];
         $salaryDisplay = isset($trainer['salary']) && $trainer['salary'] > 0 ? 
                         number_format($trainer['salary'], 2) : 
-                        "40% מההכנסות";
+                        "40% of revenue";
         
         $htmlContent .= "
         <tr>
@@ -185,20 +185,20 @@ if ($trainerDetailsResult && $trainerDetailsResult->num_rows > 0) {
         </tr>";
     }
 } else {
-    $htmlContent .= "<tr><td colspan='7' style='text-align: center;'>אין נתוני מאמנים זמינים</td></tr>";
+    $htmlContent .= "<tr><td colspan='7' style='text-align: center;'>No trainer data available</td></tr>";
 }
 
 $htmlContent .= "
     </table>
 
-    <h2>💳 פילוח הוצאות לפי קטגוריה</h2>
+    <h2>💳 Expenses by Category</h2>
     <table>
         <tr>
-            <th>קטגוריה</th>
-            <th>מספר הוצאות</th>
-            <th>סכום כולל</th>
-            <th>ממוצע להוצאה</th>
-            <th>אחוז מסה\"כ הוצאות</th>
+            <th>Category</th>
+            <th>Number of Expenses</th>
+            <th>Total Amount</th>
+            <th>Average per Expense</th>
+            <th>Percentage of Total Expenses</th>
         </tr>";
 
 if ($expensesCategoryResult && $expensesCategoryResult->num_rows > 0) {
@@ -216,30 +216,30 @@ if ($expensesCategoryResult && $expensesCategoryResult->num_rows > 0) {
         </tr>";
     }
 } else {
-    $htmlContent .= "<tr><td colspan='5' style='text-align: center;'>אין נתוני הוצאות זמינים</td></tr>";
+    $htmlContent .= "<tr><td colspan='5' style='text-align: center;'>No expense data available</td></tr>";
 }
 
 $htmlContent .= "
     </table>
 
-    <h2>🔄 ביטולים והחזרים</h2>
+    <h2>🔄 Cancellations and Refunds</h2>
     <div class='summary'>
         <div style='text-align: center;'>
             <div class='stat'>
-                <h3>מספר ביטולים</h3>
+                <h3>Total Cancellations</h3>
                 <div class='neutral'>" . $cancellationData['total_cancellations'] . "</div>
             </div>
             <div class='stat'>
-                <h3>סה\"כ החזרים</h3>
+                <h3>Total Refunds</h3>
                 <div class='negative'>₪" . number_format(floatval($cancellationData['total_refunds']), 2) . "</div>
             </div>
         </div>
     </div>
 
     <div class='footer'>
-        <p>דוח זה הופק אוטומטית על ידי מערכת FitHub</p>
-        <p>לשאלות או בעיות, פנה למנהל המערכת</p>
-        <p><strong>הערה:</strong> התשלומים למאמנים מחושבים לפי השכר המוגדר במערכת, או 40% מההכנסות במקרה שלא הוגדר שכר</p>
+        <p>This report was automatically generated by the FitHub system</p>
+        <p>For questions or issues, contact the system administrator</p>
+        <p><strong>Note:</strong> Trainer payments are calculated according to the salary defined in the system, or 40% of revenue if no salary is set</p>
     </div>
 </body>
 </html>";
@@ -256,8 +256,8 @@ try {
     $mail->isSMTP();
     $mail->Host       = 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
-    $mail->Username   = 'taimakizel18@gmail.com'; // <-- שימי כאן את המייל שלך
-    $mail->Password   = 'ihiw lpel zlzh ucya';   // <-- שימי כאן את סיסמת האפליקציה
+    $mail->Username   = 'taimakizel18@gmail.com';
+    $mail->Password   = 'ihiw lpel zlzh ucya';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
 
@@ -267,21 +267,21 @@ try {
     $reportMonth = date('F Y');
     $mail->isHTML(true);
     $mail->CharSet = 'UTF-8';
-    $mail->Subject = 'FitHub - דוח כלכלי חודשי - ' . $reportMonth;
+    $mail->Subject = 'FitHub - Monthly Financial Report - ' . $reportMonth;
     $mail->Body    = $htmlContent;
 
     $mail->send();
 
     echo "<script>
-        alert('הדוח נשלח בהצלחה למייל: $adminEmail');
+        alert('Report successfully sent to email: $adminEmail');
         window.close();
     </script>";
 } catch (Exception $e) {
-    echo "<h3>⚠️ שגיאה בשליחת הדוח:</h3><p>{$mail->ErrorInfo}</p>";
+    echo "<h3>⚠️ Error sending the report:</h3><p>{$mail->ErrorInfo}</p>";
     echo $htmlContent;
     echo "<script>
         setTimeout(function() {
-            if(confirm('שליחת המייל נכשלה. תרצה להדפיס את הדוח?')) {
+            if(confirm('Email sending failed. Would you like to print the report?')) {
                 window.print();
             }
         }, 2000);

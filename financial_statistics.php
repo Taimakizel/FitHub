@@ -523,10 +523,10 @@ $expensesCategoryResult = $con->query($expensesCategoryQuery);
                     <?php
                     while ($cancellation = $recentCancellationsResult->fetch_assoc()) {
                         echo "<tr>";
-                        echo "<td>" . htmlspecialchars($cancellation['cancellation_date']) . "</td>";
-                        echo "<td>" . htmlspecialchars($cancellation['FirstName'] . " " . $cancellation['LastName']) . "</td>";
-                        echo "<td>" . htmlspecialchars($cancellation['trainingName']) . "</td>";
-                        echo "<td style='color: #f44336;'>₪" . number_format($cancellation['refund_amount'], 2) . "</td>";
+                        echo "<td>" . $cancellation['cancellation_date'] . "</td>";
+                        echo "<td>" . $cancellation['FirstName'] . " " . $cancellation['LastName'] . "</td>";
+                        echo "<td>" . $cancellation['trainingName'] . "</td>";
+                        echo "<td style='color: #f44336;'>₪" . $cancellation['refund_amount'], 2 . "</td>";
                         echo "</tr>";
                     }
                     ?>

@@ -9,7 +9,8 @@ $con = new mysqli("localhost", "root", "", "fithub");
 if ($con->connect_error) {
     die("Connection failed: " . $con->connect_error);
 }
-// שליפת כל המתאמנים (Role = 0)
+
+// Fetch all trainees (Role = 0)
 $result = $con->query("SELECT Email, FirstName FROM users WHERE Role = 0");
 
 while ($row = $result->fetch_assoc()) {
@@ -17,10 +18,10 @@ while ($row = $result->fetch_assoc()) {
 
     try {
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com'; // לדוגמה Gmail
+        $mail->Host       = 'smtp.gmail.com'; // Example: Gmail
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'taimakizel18@gmail.com'; // כתובת השולח
-        $mail->Password   = 'ihiw lpel zlzh ucya';        // סיסמת אפליקציה (אם Gmail)
+        $mail->Username   = 'taimakizel18@gmail.com'; // Sender email
+        $mail->Password   = 'ihiw lpel zlzh ucya';    // App password (for Gmail)
         $mail->SMTPSecure = 'tls';
         $mail->Port       = 587;
 
@@ -28,13 +29,13 @@ while ($row = $result->fetch_assoc()) {
         $mail->addAddress($row['Email'], $row['FirstName']);
 
         $mail->isHTML(true);
-        $mail->Subject = 'עדכון משקל חודשי - FitHub';
+        $mail->Subject = 'Monthly Weight Update - FitHub';
         $mail->Body    = "
-            <h3>שלום {$row['FirstName']},</h3>
-            <p>הגיע הזמן לעדכן את המשקל החודשי שלך במערכת FitHub!</p>
-            <p>היכנס לפרופיל האישי שלך ובצע עדכון משקל כדי שנוכל לעקוב אחרי ההתקדמות שלך.</p>
+            <h3>Hello {$row['FirstName']},</h3>
+            <p>It's time to update your monthly weight in the FitHub system!</p>
+            <p>Log in to your personal profile and update your weight so we can track your progress.</p>
             <br>
-            <p style='color:gray;'>ההודעה נשלחה אוטומטית בתאריך " . date('d/m/Y') . "</p>
+            <p style='color:gray;'>This message was sent automatically on " . date('d/m/Y') . ".</p>
         ";
 
         $mail->send();
