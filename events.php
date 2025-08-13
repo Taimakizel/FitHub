@@ -212,7 +212,7 @@ $result = $con->query($sql);
                 <input type="hidden" name="eventId" value="<?php echo $row['eventId']; ?>">
                 <button class="register-btn" type="submit" name="register"
                     <?php echo ($row['is_registered'] > 0) ? 'disabled' : ''; ?>>
-                    <?php echo ($row['is_registered'] > 0) ? 'נרשמת כבר' : 'הרשמה'; ?>
+                    <?php echo ($row['is_registered'] > 0) ? 'already register' : 'register'; ?>
                 </button>
             </form>
         </div>

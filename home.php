@@ -376,7 +376,7 @@ if (!empty($similarUsers) && $role == 0) {
                 </p>
                 <form method='post' action='selectedTraining.php' style='display: inline;'>
                   <input type='hidden' name='trainingNum' value='<?= $training['trainingNum'] ?>'>
-                  <button type='submit' class='cta-button' style='border: none; cursor: pointer;'>לפרטי האימון</button>
+                  <button type='submit' class='cta-button' style='border: none; cursor: pointer;'>Read More</button>
                 </form>
               </div>
           </div>
