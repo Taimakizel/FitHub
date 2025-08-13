@@ -522,7 +522,7 @@ session_start();
                     <div>
                         <strong>Email Us</strong><br>
                         <a href="mailto:taimakizel18@gmail.com" style="color: rgb(168, 240, 165); text-decoration: none;">
-                            taimakizel18@gmail.com
+                            info@fithub.co.il
                         </a>
                     </div>
                 </div>
@@ -564,19 +564,19 @@ session_start();
                 <p style="margin-bottom: 30px;">Follow our journey and stay updated with the latest fitness tips, member achievements, and gym updates!</p>
                 
                 <div class="social-grid">
-                    <a href="https://instagram.com/fithub" target="_blank" class="social-item instagram">
+                    <a href="https://www.instagram.com/fithubnamal/?hl=he" target="_blank" class="social-item instagram">
                         <i class="fab fa-instagram"></i>
                         <div>Instagram</div>
                         <small>@fithub</small>
                     </a>
                     
-                    <a href="https://facebook.com/fithub" target="_blank" class="social-item facebook">
+                    <a href="https://www.facebook.com/CrossFitNamal/?locale=he_IL" target="_blank" class="social-item facebook">
                         <i class="fab fa-facebook-f"></i>
                         <div>Facebook</div>
                         <small>/FitHubGym</small>
                     </a>
                     
-                    <a href="https://wa.me/972501234567" target="_blank" class="social-item whatsapp">
+                    <a href="https://api.whatsapp.com/send?phone=972524445050&text=%D7%90%D7%A0%D7%90%20%D7%97%D7%96%D7%A8%D7%95%20%D7%90%D7%9C%D7%99%20" target="_blank" class="social-item whatsapp">
                         <i class="fab fa-whatsapp"></i>
                         <div>WhatsApp</div>
                         <small>Chat with us</small>
