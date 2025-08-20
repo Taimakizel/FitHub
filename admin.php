@@ -247,6 +247,29 @@
     color:rgb(255, 255, 255);
     margin: 0;
 }
+    .client-item:hover {
+        background-color: #f0f0f0;
+    }
+    
+    .client-item.selected {
+        background-color: rgb(205, 232, 191);
+    }
+    
+    #searchClient {
+        width: 100%;
+        padding: 10px;
+        background-color: rgba(202, 201, 201, 0.45);
+        color: rgb(0, 0, 0);
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        margin-top: 8px;
+    }
+    
+    #searchClient:focus {
+        outline: none;
+        border: 2px solid rgb(0, 0, 0);
+    }
 </style>
 </head>
 <body>
@@ -520,75 +543,154 @@
             ?>
         </div>
     </div>
-    <!-- Client Progress -->
-    <div id="progress" class="section">
-        <h2>Client Progress Tracking</h2>
-        <div class="form-container">
-            <form method="POST" id="progressForm">
-                <div class="select-container">
-                    <label for="userId">Select Client:</label>
-                    <select name="userId" id="userId" required>
-                        <option value="">Choose...</option>
-                        <?php
-                        $res = $con->query("SELECT userId, FirstName, LastName FROM users WHERE Role = 0 ORDER BY FirstName, LastName");
-                        while ($row = $res->fetch_assoc()) {
-                            echo "<option value='".htmlspecialchars($row['userId'])."'>".htmlspecialchars($row['FirstName'])." ".htmlspecialchars($row['LastName'])."</option>";
-                        }
-                        ?>
-                </select>
+
+<!-- Client Progress -->
+<div id="progress" class="section">
+    <h2>Client Progress Tracking</h2>
+    <div class="form-container">
+        <form method="POST" id="progressForm">
+            <div class="select-container">
+                <label for="searchClient">Search Client:</label>
+                <input type="text" id="searchClient" placeholder="Type client name..." autocomplete="off">
+                <input type="hidden" name="userId" id="selectedUserId" required>
+                <div id="clientList" style="display: none; max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 8px; background-color: white; margin-top: 5px;">
+                    <?php
+                    $res = $con->query("SELECT userId, FirstName, LastName FROM users WHERE Role = 0 ORDER BY FirstName, LastName");
+                    while ($row = $res->fetch_assoc()) {
+                        echo "<div class='client-item' data-id='".htmlspecialchars($row['userId'])."' style='padding: 10px; cursor: pointer; border-bottom: 1px solid #eee;'>".htmlspecialchars($row['FirstName'])." ".htmlspecialchars($row['LastName'])."</div>";
+                    }
+                    ?>
                 </div>
-                <br>
-                <label>From Date:</label>
-                <input type="date" name="startDate" required>
-                <label>To Date:</label>
-                <input type="date" name="endDate" required>
-                <button type="submit" name="show_progress">Show Progress Chart</button>
-            </form>
-        </div>
-        <?php
-            $dates = [];
-            $weights = [];
-
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['show_progress'])) {
-                $stmt = $con->prepare("SELECT DateRecorded, weight FROM weights WHERE userId = ? AND DateRecorded BETWEEN ? AND ? ORDER BY DateRecorded ASC");
-                $stmt->bind_param("sss", $_POST['userId'], $_POST['startDate'], $_POST['endDate']);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                while ($row = $result->fetch_assoc()) {
-                    $dates[] = date('d/m/Y', strtotime($row['DateRecorded']));
-                    $weights[] = $row['weight'];
-                }
-                $stmt->close();
-            }
-
-            if (!empty($weights)) {
-                echo "<div class='Divchart'><h3 style='text-align:center;'>Progress Chart</h3><canvas id='chart'></canvas></div>";
-                echo "<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
-                         <script>
-                    new Chart(document.getElementById('chart'), {
-                        type: 'line',
-                        data: {
-                            labels: ".json_encode($dates).",
-                            datasets: [{
-                                label: 'Weight (kg)',
-                                data: ".json_encode($weights).",
-                                borderColor: 'rgb(178, 211, 171)',
-                                backgroundColor: 'rgba(212, 226, 209, 0.81)',
-                                tension: 0.4,
-                                fill: true
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                x: { ticks: { color: 'black' }, grid: { color: 'rgba(172, 168, 168, 0.53)' }},
-                                y: { ticks: { color: 'black' }, grid: { color: 'rgba(172, 168, 168, 0.53)' }}
-                            }
-                        }
-                    });
-                </script>";
-            }
-        ?>
+            </div>
+            <br>
+            <label>From Date:</label>
+            <input type="date" name="startDate" required>
+            <label>To Date:</label>
+            <input type="date" name="endDate" required>
+            <button type="submit" name="show_progress">Show Progress Chart</button>
+        </form>
     </div>
+    <?php
+        $dates = [];
+        $weights = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['show_progress'])) {
+            $stmt = $con->prepare("SELECT DateRecorded, weight FROM weights WHERE userId = ? AND DateRecorded BETWEEN ? AND ? ORDER BY DateRecorded ASC");
+            $stmt->bind_param("sss", $_POST['userId'], $_POST['startDate'], $_POST['endDate']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $dates[] = date('d/m/Y', strtotime($row['DateRecorded']));
+                $weights[] = $row['weight'];
+            }
+            $stmt->close();
+        }
+
+        if (!empty($weights)) {
+            echo "<div class='Divchart'><h3 style='text-align:center;'>Progress Chart</h3><canvas id='chart'></canvas></div>";
+            echo "<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+                     <script>
+                new Chart(document.getElementById('chart'), {
+                    type: 'line',
+                    data: {
+                        labels: ".json_encode($dates).",
+                        datasets: [{
+                            label: 'Weight (kg)',
+                            data: ".json_encode($weights).",
+                            borderColor: 'rgb(178, 211, 171)',
+                            backgroundColor: 'rgba(212, 226, 209, 0.81)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: { ticks: { color: 'black' }, grid: { color: 'rgba(172, 168, 168, 0.53)' }},
+                            y: { ticks: { color: 'black' }, grid: { color: 'rgba(172, 168, 168, 0.53)' }}
+                        }
+                    }
+                });
+            </script>";
+        }
+    ?>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchClient');
+    const clientList = document.getElementById('clientList');
+    const selectedUserId = document.getElementById('selectedUserId');
+    const clientItems = document.querySelectorAll('.client-item');
+
+    // Show client list only when there's input
+    searchInput.addEventListener('focus', function() {
+        if (searchInput.value.trim() !== '') {
+            clientList.style.display = 'block';
+            filterClients();
+        }
+    });
+
+    // Filter clients based on search input
+    searchInput.addEventListener('input', function() {
+        if (searchInput.value.trim() !== '') {
+            clientList.style.display = 'block';
+            filterClients();
+        } else {
+            clientList.style.display = 'none';
+        }
+    });
+
+    // Hide list when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.select-container')) {
+            clientList.style.display = 'none';
+        }
+    });
+
+    // Handle client selection
+    clientItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            const clientName = this.textContent;
+            const clientId = this.dataset.id;
+            
+            searchInput.value = clientName;
+            selectedUserId.value = clientId;
+            clientList.style.display = 'none';
+            
+            // Remove previous selection highlighting
+            clientItems.forEach(i => i.classList.remove('selected'));
+            // Highlight selected item
+            this.classList.add('selected');
+        });
+    });
+
+    function filterClients() {
+        const searchTerm = searchInput.value.toLowerCase();
+        let hasVisibleItems = false;
+        
+        clientItems.forEach(function(item) {
+            const clientName = item.textContent.toLowerCase();
+            if (clientName.includes(searchTerm) && searchTerm !== '') {
+                item.style.display = 'block';
+                hasVisibleItems = true;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Hide list if no items match or search is empty
+        if (!hasVisibleItems || searchTerm === '') {
+            clientList.style.display = 'none';
+        }
+    }
+
+    // Clear selection when search input is manually changed
+    searchInput.addEventListener('input', function() {
+        selectedUserId.value = '';
+        clientItems.forEach(i => i.classList.remove('selected'));
+    });
+});
+</script>
 
     <div id="filters" class="section">
     <h2>Filters Managment</h2>
