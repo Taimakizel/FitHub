@@ -65,7 +65,7 @@ $result = $con->query($query);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Trainings</title>
+    <title>FitHub - Trainings</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         body {

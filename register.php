@@ -31,10 +31,10 @@
     }
 ?>
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sign-up - FitHub</title>
+    <title> FitHub - Sign-up</title>
     <style>
            * {
             box-sizing: border-box;

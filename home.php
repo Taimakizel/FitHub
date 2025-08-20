@@ -57,7 +57,7 @@ if (!empty($similarUsers) && $role == 0) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FitHub - דף הבית</title>
+  <title>FitHub - Home</title>
   <style>
     body {
         font-family: 'Times New Roman';

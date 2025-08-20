@@ -177,7 +177,7 @@ function generateUpdateDescription($oldData, $newData) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Trainer Dashboard</title>
+    <title>FitHuB - Trainer Managment</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         body {

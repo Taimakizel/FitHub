@@ -46,7 +46,7 @@ $registrations = $registration_query->get_result();
 <html lang="en" >
 <head>
     <meta charset="UTF-8">
-    <title>Rewards System - FitHub</title>
+    <title>FitHub - Rewards System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * {
