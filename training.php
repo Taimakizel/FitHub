@@ -12,6 +12,8 @@ $userId = $_SESSION['userId'];
 $id = $userId['userId'];
 /////////////////////////////////////////////////
 // אלגוריתם למציאת סוג האימון המועדף על הלקוח
+//חיפוש את כל האימונים שהמשתמש נרשם אליהם ועושה שיתוף עם טבלת האימונים כדי לקבל את הסוג 
+// סופר כמה כל סוג הופיע וממין את התוצאה ולוקח את הראשון שהויע הכי הרבה
 $preferredTypeQuery = "
     SELECT t.Type, COUNT(*) as count
     FROM registeration r
@@ -30,7 +32,6 @@ if ($preferredTypeResult && $preferredTypeResult->num_rows > 0) {
 
 $typeResult = $con->query("SELECT * FROM types");
 
-// שינוי החלק הזה - הוספת תנאי תאריך ושעה
 $filter = "WHERE CONCAT(Date, ' ', Time) >= NOW()"; // רק אימונים שטרם התחילו
 
 if (!empty($_POST['level']) && is_array($_POST['level'])) {
@@ -52,12 +53,13 @@ if (!empty($_POST['type']) && is_array($_POST['type'])) {
 }
 
 // הוספת מיון לפי העדפת הלקוח ואז לפי תאריך וזמן
+
 $orderBy = "ORDER BY ";
-if ($preferredType !== null) {
-    $orderBy .= "(CASE WHEN Type = $preferredType THEN 0 ELSE 1 END), ";
+if ($preferredType !== null) {// בודקים אם יש ערך בסוג המועדף
+    $orderBy .= "(CASE WHEN Type = $preferredType THEN 0 ELSE 1 END), "; // אם התנאי נכון קאיס מחזיר 0 אחרת 1
 }
 $orderBy .= "Date ASC, Time ASC";
-
+// מכיוון הברירת המחדל היא בסדר עולה כל השורות שמחזירות 0 יופיעו בהתחלה אחר כך שורות שהחזירו 1 המיון ממשיך לפי תאריך ושעה
 $query = "SELECT * FROM training $filter $orderBy";
 $result = $con->query($query);
 ?>
