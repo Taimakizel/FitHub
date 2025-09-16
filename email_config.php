@@ -1,34 +1,26 @@
 <?php
-/**
- * הגדרות מייל למערכת FitHub
- * עדכן את ההגדרות בהתאם לספק המייל שלך
- */
 
-// הגדרות כלליות
 define('EMAIL_FROM_ADDRESS', 'noreply@fithub.com');
 define('EMAIL_FROM_NAME', 'FitHub System');
 define('EMAIL_REPLY_TO', 'admin@fithub.com');
 
-// בחר את שיטת השליחה: 'phpmailer', 'sendgrid', או 'mail'
 define('EMAIL_METHOD', 'phpmailer');
 
 // הגדרות PHPMailer
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'your-email@gmail.com'); // החלף עם המייל שלך
-define('SMTP_PASSWORD', 'your-app-password');    // החלף עם App Password
-define('SMTP_ENCRYPTION', 'tls'); // 'tls' או 'ssl'
+define('SMTP_USERNAME', 'taimakizel18@gmail.com@gmail.com'); 
+define('SMTP_PASSWORD', 'ljrj dprw dtgm bqxf');
+define('SMTP_ENCRYPTION', 'tls'); 
 
 // הגדרות SendGrid (אם משתמש)
 define('SENDGRID_API_KEY', 'your-sendgrid-api-key');
 
 // הגדרות מתקדמות
-define('EMAIL_DEBUG', false); // true להצגת שגיאות מפורטות
-define('EMAIL_TIMEOUT', 30);  // זמן קצוב בשניות
+define('EMAIL_DEBUG', false); 
+define('EMAIL_TIMEOUT', 30);  
 
-/**
- * פונקציה מתקדמת לשליחת מייל
- */
+
 function sendEmailReport($to, $subject, $htmlContent, $textContent = '') {
     switch (EMAIL_METHOD) {
         case 'phpmailer':
@@ -90,9 +82,7 @@ function sendWithPHPMailer($to, $subject, $htmlContent, $textContent = '') {
     }
 }
 
-/**
- * שליחה עם SendGrid
- */
+
 function sendWithSendGrid($to, $subject, $htmlContent, $textContent = '') {
     require_once 'vendor/autoload.php';
     

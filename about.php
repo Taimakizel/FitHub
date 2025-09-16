@@ -401,7 +401,6 @@ session_start();
     </div>
 
     <div class="container">
-        <!-- Hero Section -->
         <div class="hero-section">
             <h1>🏋️ Welcome to FitHub</h1>
             <p>Your premier fitness destination where strength meets community. We've been transforming lives and building stronger bodies since our foundation.</p>
@@ -425,8 +424,6 @@ session_start();
                 </div>
             </div>
         </div>
-
-        <!-- Content Grid -->
         <div class="content-grid">
             <!-- Our Story -->
             <div class="content-section">
@@ -508,7 +505,6 @@ session_start();
             </div>
         </div>
 
-        <!-- Contact Section -->
         <div class="contact-grid">
             <!-- Contact Information -->
             <div class="contact-info">
@@ -590,13 +586,10 @@ session_start();
                 </div>
             </div>
         </div>
-
-        <!-- Call to Action -->
         
     </div>
 
     <script>
-        // Smooth scrolling for internal links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -605,8 +598,6 @@ session_start();
                 });
             });
         });
-
-        // Add scroll animation to elements
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -620,8 +611,6 @@ session_start();
                 }
             });
         }, observerOptions);
-
-        // Observe all content sections
         document.querySelectorAll('.content-section, .stat-card, .value-card').forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(30px)';
@@ -629,7 +618,6 @@ session_start();
             observer.observe(el);
         });
 
-        // Social media click tracking
         document.querySelectorAll('.social-item').forEach(item => {
             item.addEventListener('click', function() {
                 const platform = this.classList.contains('instagram') ? 'Instagram' : 
@@ -639,7 +627,6 @@ session_start();
             });
         });
 
-        // Add loading animation to stats
         function animateStats() {
             const stats = document.querySelectorAll('.stat-number');
             stats.forEach(stat => {
@@ -659,8 +646,6 @@ session_start();
                 }
             });
         }
-
-        // Trigger stats animation when page loads
         window.addEventListener('load', () => {
             setTimeout(animateStats, 500);
         });

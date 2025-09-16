@@ -32,7 +32,7 @@ function sendTrainingUpdateEmail($email, $firstName, $trainingName, $updateDetai
         $mail->addAddress($email, $firstName);
         $mail->isHTML(true);
         $mail->CharSet = 'UTF-8';
-        $mail->Subject = 'עדכון באימון שלך - ' . $trainingName;
+        $mail->Subject = 'update you training - ' . $trainingName;
         $mail->Body = "
         <!DOCTYPE html>
         <html dir='rtl'>
@@ -45,11 +45,11 @@ function sendTrainingUpdateEmail($email, $firstName, $trainingName, $updateDetai
         </style></head>
         <body>
             <div class='container'>
-                <div class='header'><h1>🏋️ עדכון באימון - FitHub</h1></div>
-                <p>שלום $firstName,</p>
-                <p>ברצוננו לעדכן אותך כי חלו שינויים באימון <strong>$trainingName</strong> שנרשמת אליו.</p>
-                <div class='update-box'><h3>📝 פרטי השינויים:</h3>$updateDetails</div>
-                <p>אנא בדוק את הפרטים החדשים ותוודא שהם מתאימים לך.</p>
+                <div class='header'><h1>🏋️ Update Training - FitHub</h1></div>
+                <p>Hello $firstName,</p>
+                <p>We would like to inform you that there have been changes to the training <strong>$trainingName</strong> you are registered for.</p>
+                <div class='update-box'><h3>📝 Update Details:</h3>$updateDetails</div>
+                <p>Please review the new details and make sure they are suitable for you.</p>
             </div>
         </body></html>";
         $mail->send();
@@ -74,7 +74,7 @@ function sendTrainingCancellationEmail($email, $firstName, $trainingName, $refun
         $mail->addAddress($email, $firstName);
         $mail->isHTML(true);
         $mail->CharSet = 'UTF-8';
-        $mail->Subject = 'ביטול אימון - ' . $trainingName;
+        $mail->Subject = 'Cancel Training - ' . $trainingName;
         $mail->Body = "
         <!DOCTYPE html>
         <html dir='rtl'>
@@ -88,19 +88,20 @@ function sendTrainingCancellationEmail($email, $firstName, $trainingName, $refun
         </style></head>
         <body>
             <div class='container'>
-                <div class='header'><h1>❌ ביטול אימון - FitHub</h1></div>
-                <p>שלום $firstName,</p>
+                <div class='header'><h1>❌ Training Cancellation - FitHub</h1></div>
+                <p>Hello $firstName,</p>
                 <div class='cancellation-box'>
-                    <h3>🚫 הודעת ביטול</h3>
-                    <p>לצערנו, האימון <strong>$trainingName</strong> שנרשמת אליו בוטל על ידי המאמן.</p>
+                    <h3>🚫 Cancellation Notice</h3>
+                    <p>Unfortunately, the training <strong>$trainingName</strong> you registered for has been cancelled by the trainer.</p>
                 </div>
                 <div class='refund-box'>
-                    <h3>💰 החזר כספי</h3>
-                    <p><strong>סכום החזר: ₪$refundAmount</strong></p>
-                    <p>הכסף יוחזר אליך בקרוב</p>
+                    <h3>💰 Refund</h3>
+                    <p><strong>Refund Amount: ₪$refundAmount</strong></p>
+                    <p>The amount will be refunded to you shortly.</p>
                 </div>
-                <p>אנו מתנצלים על אי הנוחות.</p>
-            </div>
+                <p>We apologize for any inconvenience caused.</p>
+             </div>
+
         </body></html>";
         $mail->send();
         return true;
@@ -146,30 +147,28 @@ function notifyRegisteredUsers($trainingNum, $notificationType, $con, $updateDet
 function generateUpdateDescription($oldData, $newData) {
     $changes = [];
     $fieldsToCheck = [
-        'trainingName' => 'שם האימון',
-        'Description' => 'תיאור',
-        'Duration' => 'משך (דקות)',
-        'Location' => 'מיקום',
-        'Date' => 'תאריך',
-        'Time' => 'שעה',
-        'Level' => 'רמה',
-        'Goal' => 'מטרה',
-        'maxParticipants' => 'מספר משתתפים מקסימלי',
-        'Price' => 'מחיר'
+        'trainingName' => 'Training Name',
+        'Description' => 'Description',
+        'Duration' => 'Duration (minutes)',
+        'Location' => 'Location',
+        'Date' => 'Date',
+        'Time' => 'Time',
+        'Level' => 'Level',
+        'Goal' => 'Goal',
+        'maxParticipants' => 'Max Participants',
+        'Price' => 'Price'
     ];
-    
-    foreach ($fieldsToCheck as $field => $hebrewName) {
-        if (isset($oldData[$field]) && isset($newData[$field])) {
-            if ($oldData[$field] != $newData[$field]) {
-                $changes[] = "<strong>$hebrewName:</strong> {$oldData[$field]} → {$newData[$field]}";
-            }
+
+    foreach ($fieldsToCheck as $field => $label) {
+        if (isset($oldData[$field], $newData[$field]) && $oldData[$field] != $newData[$field]) {
+            $changes[] = "<p><strong>$label:</strong> from <em>{$oldData[$field]}</em> to <em>{$newData[$field]}</em></p>";
         }
     }
-    
+
     if (empty($changes)) {
-        return "לא זוהו שינויים משמעותיים.";
+        return "<p>No changes were made.</p>";
     }
-    
+
     return "<ul><li>" . implode("</li><li>", $changes) . "</li></ul>";
 }
 ?>
@@ -527,7 +526,7 @@ function generateUpdateDescription($oldData, $newData) {
             empty($location) || empty($date) || empty($time) || 
             empty($level) || empty($goal) || empty($type) || empty($img_name) || empty($price)) {
                     
-            echo "<script>alert('יש למלא את כל השדות הנדרשים');</script>";
+            echo "<script>alert('Fill all inputs');</script>";
             exit;
         }
 
@@ -537,7 +536,7 @@ function generateUpdateDescription($oldData, $newData) {
         $currentDateTime = date('Y-m-d H:i');
         
         if ($selectedDateTime <= $currentDateTime) {
-            echo "<script>alert('לא ניתן לקבוע אימון בתאריך או שעה שכבר עברו');</script>";
+            echo "<script>alert('You cannot schedule a training for a past date or time');</script>";
             exit;
         }
 
@@ -565,17 +564,17 @@ function generateUpdateDescription($oldData, $newData) {
         // ביצוע השאילתה
         if ($stmt->execute()) {
             echo "<script>
-                alert('האימון נוסף בהצלחה!');
+                alert('Training added successfully!');
                 window.location.href = 'trainer.php';
             </script>";
         } else {
-            echo "<script>alert('שגיאה בהוספת האימון: " . $stmt->error . "');</script>";
+            echo "<script>alert('Error adding the training: " . $stmt->error . "');</script>";
         }
-        
+
         $stmt->close();
-    } else {
-        echo "<script>alert('שגיאה בהכנת השאילתה: " . $con->error . "');</script>";
-    }
+        } else {
+            echo "<script>alert('Error preparing the query: " . $con->error . "');</script>";
+        }
 }
 ?>
     </div>
@@ -721,7 +720,7 @@ if (isset($_POST['updateTraining'])) {
         $notifiedUsers = notifyRegisteredUsers($id, 'update', $con, $updateDetails);
         
         echo "<script>
-            alert('האימון עודכן בהצלחה! נשלחו הודעות ל-$notifiedUsers נרשמים.');
+            alert('The training has been updated successfully! Notifications were sent to $notifiedUsers registered users.');
             window.location.href='trainer.php';
         </script>";
     } else {
@@ -809,7 +808,7 @@ function validateBeforeSubmit(event) {
         
         if (selectedDate <= now) {
             event.preventDefault();
-            alert('לא ניתן לקבוע אימון בתאריך או שעה שכבר עברו');
+            alert('You cannot schedule a training for a past date or time');
             return false;
         }
     }

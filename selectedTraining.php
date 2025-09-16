@@ -139,7 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['doRegister'])) {
                         // הוסף להיסטוריית נקודות - שימוש
                         $historyStmt = $con->prepare("INSERT INTO points_history (userId, points_change, points_type, description, registration_num) VALUES (?, ?, 'used', ?, ?)");
                         $usedPoints = -$maxPointsToUse;
-                        $description = "שימוש בנקודות להנחה על אימון {$row['trainingName']} - חיסכון של {$discountAmount}₪";
+                        $description = "Using points for a discount on training {$row['trainingName']} - saving {$discountAmount}₪";
                         $historyStmt->bind_param("sisi", $id, $usedPoints, $description, $registrationNum);
                         $historyStmt->execute();
                     }
@@ -151,7 +151,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['doRegister'])) {
                     
                     // הוסף להיסטוריית נקודות - צבירה
                     $historyStmt = $con->prepare("INSERT INTO points_history (userId, points_change, points_type, description, registration_num) VALUES (?, 10, 'earned', ?, ?)");
-                    $description = "צבירת נקודות עבור הרשמה לאימון {$row['trainingName']}";
+                    $description = "Poins earned from register {$row['trainingName']}";
                     $historyStmt->bind_param("ssi", $id, $description, $registrationNum);
                     $historyStmt->execute();
                     

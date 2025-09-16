@@ -15,15 +15,13 @@ if (!$con) {
 
 // פונקציה לשליחת קוד אימות
 function sendVerificationCode($email, $firstName, $code) {
-
     $mail = new PHPMailer(true);
-
     try {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
         $mail->Username   = 'taimakizel18@gmail.com';
-        $mail->Password   = 'ihiw lpel zlzh ucya';
+        $mail->Password   = 'ljrj dprw dtgm bqxf';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
@@ -32,8 +30,8 @@ function sendVerificationCode($email, $firstName, $code) {
 
         $mail->isHTML(true);
         $mail->CharSet = 'UTF-8';
-        $mail->Subject = 'FitHub - קוד אימות לאיפוס סיסמה';
-        
+        $mail->Subject = 'FitHub - code to password ';
+
         $htmlContent = "
         <!DOCTYPE html>
         <html dir='rtl'>
@@ -49,40 +47,39 @@ function sendVerificationCode($email, $firstName, $code) {
                 .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #666; }
             </style>
         </head>
-        <body>
+         <body>
             <div class='container'>
                 <div class='header'>
-                    <h1>🔒 FitHub - קוד אימות</h1>
+                    <h1>🔒 FitHub - Verification Code</h1>
                 </div>
                 
-                <p>שלום $firstName,</p>
+                <p>Hello $firstName,</p>
                 
-                <p>זוהו 3 נסיונות התחברות כושלים לחשבון שלך במערכת FitHub.</p>
-                <p>מטעמי אבטחה, החשבון שלך נחסם זמנית.</p>
+                <p>A password reset request has been made for your FitHub account.</p>
                 
                 <div class='code-box'>
-                    <p><strong>קוד האימות שלך:</strong></p>
+                    <p><strong>Your verification code:</strong></p>
                     <div class='code'>$code</div>
                 </div>
                 
                 <div class='warning'>
-                    <p><strong>⚠️ הוראות חשובות:</strong></p>
+                    <p><strong>⚠️ Important Instructions:</strong></p>
                     <ul>
-                        <li>הזן את הקוד בדף ההתחברות</li>
-                        <li>הקוד תקף ל-15 דקות בלבד</li>
-                        <li>לאחר הזנת קוד נכון תועבר לאיפוס סיסמה</li>
-                        <li>אם הקוד שגוי, יישלח קוד חדש</li>
+                        <li>Enter the code on the login page</li>
+                        <li>The code is valid for 15 minutes only</li>
+                        <li>After entering the correct code, you will be redirected to reset your password</li>
+                        <li>If the code is wrong, a new one will be sent automatically</li>
                     </ul>
                 </div>
                 
                 <div class='footer'>
-                    <p>מייל זה נשלח אוטומטית ממערכת FitHub</p>
-                    <p>לשאלות, פנה לצוות התמיכה</p>
+                    <p>This email was sent automatically by the FitHub system</p>
+                    <p>For questions, contact the support team</p>
                 </div>
             </div>
         </body>
         </html>";
-        
+
         $mail->Body = $htmlContent;
         $mail->send();
         return true;
@@ -103,150 +100,151 @@ function sendNewVerificationCode($userId, $con) {
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
         $newCode = generateVerificationCode();
         $expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-        
-        // עדכון הקוד החדש במסד נתונים
+
         $updateQuery = "UPDATE users SET verification_code = ?, code_expiry = ? WHERE userId = ?";
         $updateStmt = $con->prepare($updateQuery);
         $updateStmt->bind_param("sss", $newCode, $expiry, $userId);
         $updateStmt->execute();
-        
-        // שליחת המייל
+
         return sendVerificationCode($user['Email'], $user['FirstName'], $newCode);
     }
     return false;
+}
+
+// טיפול בהתחברות רגילה
+if(isset($_POST['bt']) && $_POST['Id'] != null && $_POST['password'] != null){
+    $id = $_POST['Id'];
+    $pass = $_POST['password'];
+    
+    // בדיקת חסימה
+    if(isset($_SESSION['blocked_until']) && time() < $_SESSION['blocked_until']) {
+        $remaining = ceil(($_SESSION['blocked_until'] - time()) / 60);
+        echo "<script>alert('החשבון חסום ל-$remaining דקות נוספות.');</script>";
+    } else if(isset($_SESSION['blocked_until'])) {
+        unset($_SESSION['blocked_until']);
+        unset($_SESSION['failed_attempts']);
+    }
+    
+    // אם החשבון לא חסום
+    if(!isset($_SESSION['blocked_until']) || time() >= $_SESSION['blocked_until']) {
+        $sql = "SELECT userId, FirstName, LastName, Email, Phone, Password, Role, image_path FROM users WHERE userId = '$id' AND Password = '$pass'";
+        $result = $con->query($sql);
+        
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $_SESSION['userId'] = $row;
+            $_SESSION['Role'] = $row['Role'];
+            $_SESSION['FirstName'] = $row['FirstName'];
+            $_SESSION['LastName'] = $row['LastName'];
+            $_SESSION['Email'] = $row['Email'];
+            $_SESSION['Phone'] = $row['Phone'];
+            $_SESSION['image_path'] = $row['image_path'];
+            
+            // איפוס ניסיונות כושלים
+            unset($_SESSION['failed_attempts']);
+            unset($_SESSION['blocked_until']);
+            
+            if ($row['Role'] == 2) {
+                header('Location: admin.php');
+                exit();
+            } else if($row['Role'] == 1){
+                header('Location: trainer.php');
+                exit();
+            } else {
+                header('Location: home.php');
+                exit();
+            }
+        } else {
+            // ניסיון כושל
+            if(!isset($_SESSION['failed_attempts'])) {
+                $_SESSION['failed_attempts'] = 0;
+            }
+            $_SESSION['failed_attempts']++;
+            
+            if($_SESSION['failed_attempts'] >= 3) {
+                // Block for 30 minutes + send verification code
+                $_SESSION['blocked_until'] = time() + (30 * 60);
+                
+                $sql = "SELECT Email FROM users WHERE userId = '$id'";
+                $result = $con->query($sql);
+                if ($result->num_rows > 0) {
+                    $row = $result->fetch_assoc();
+                    if (sendNewVerificationCode($id, $con)) {
+                        $_SESSION['blocked_user_id'] = $id;
+                        $_SESSION['show_verification'] = true;
+                        echo "<script>alert('The account has been blocked for 30 minutes. A reset code has been sent to your email.');</script>";
+                    } else {
+                        echo "<script>alert('The account has been blocked for 30 minutes. Error sending reset code.');</script>";
+                    }
+                } else {
+                    echo "<script>alert('ID not found.');</script>";
+                }
+            } else {
+                $remaining = 3 - $_SESSION['failed_attempts'];
+                echo "<script>alert('Incorrect! $remaining attempts remaining.');</script>";
+            }
+
+        }
+    }
+}
+
+// טיפול בכפתור "שכחתי סיסמה"
+if (isset($_POST['forgot_password']) && !empty($_POST['Id'])) {
+    $userId = $_POST['Id'];
+    $userQuery = "SELECT userId FROM users WHERE userId = ?";
+    $stmt = $con->prepare($userQuery);
+    $stmt->bind_param("s", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        if (sendNewVerificationCode($userId, $con)) {
+            $_SESSION['blocked_user_id'] = $userId;
+            $_SESSION['show_verification'] = true;
+            echo "<script>alert('A verification code has been sent to your email.');</script>";
+        } else {
+            echo "<script>alert('Error sending the verification code. Please try again later.');</script>";
+        }
+    } else {
+        echo "<script>alert('User does not exist in the system');</script>";
+    }
+
 }
 
 // טיפול באימות קוד
 if (isset($_POST['verify_code'])) {
     $userId = $_POST['user_id'];
     $enteredCode = $_POST['verification_code'];
-    
-    // בדיקת קוד אימות
+
     $query = "SELECT verification_code, code_expiry FROM users WHERE userId = ?";
     $stmt = $con->prepare($query);
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $storedCode = $row['verification_code'];
         $expiry = $row['code_expiry'];
-        
+
         if ($enteredCode == $storedCode && strtotime($expiry) > time()) {
-            // קוד נכון - העברה לדף איפוס סיסמה נפרד
             $_SESSION['reset_user_id'] = $userId;
             $_SESSION['code_verified'] = true;
             header("Location: reset_password.php");
             exit();
         } else {
-            // קוד שגוי או פג תוקף - שליחת קוד חדש
             if (sendNewVerificationCode($userId, $con)) {
-                echo "<script>alert('קוד שגוי או פג תוקף. נשלח קוד חדש למייל שלך');</script>";
+                echo "<script>alert('Incorrect or expired code. A new code has been sent to your email');</script>";
             } else {
-                echo "<script>alert('שגיאה בשליחת קוד חדש, נסה שוב מאוחר יותר');</script>";
+                echo "<script>alert('Error sending a new code, please try again later');</script>";
             }
-        }
-    }
-}
 
-// טיפול באיפוס סיסמה - הוסר כי עבר לדף נפרד
-
-// טיפול בהתחברות רגילה
-if (isset($_POST['bt']) && $_POST['Id'] != null && $_POST['password'] != null) {
-    $id = $_POST['Id'];
-    $pass = $_POST['password'];
-    
-    // שליפת פרטי המשתמש
-    $sql = "SELECT userId, FirstName, LastName, Email, Phone, Password, Role, image_path, login_attempts FROM users WHERE userId = ?";
-    $stmt = $con->prepare($sql);
-    $stmt->bind_param("s", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        
-        // בדיקה אם המשתמש כבר חסום
-        if ($row['login_attempts'] >= 3) {
-            $_SESSION['blocked_user_id'] = $id;
-            echo "<script>
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('verification-section').style.display = 'block';
-            </script>";
-        } else {
-            // בדיקת סיסמה
-            if ($row['Password'] === $pass) {
-                // התחברות מצליחה - איפוס נסיונות
-                $resetQuery = "UPDATE users SET login_attempts = 0, last_attempt = NOW() WHERE userId = ?";
-                $resetStmt = $con->prepare($resetQuery);
-                $resetStmt->bind_param("s", $id);
-                $resetStmt->execute();
-                
-                // שמירת נתונים ב-Session
-                $_SESSION['userId'] = $row;
-                $_SESSION['Role'] = $row['Role'];
-                $_SESSION['FirstName'] = $row['FirstName'];
-                $_SESSION['LastName'] = $row['LastName'];
-                $_SESSION['Email'] = $row['Email'];
-                $_SESSION['Phone'] = $row['Phone'];
-                $_SESSION['image_path'] = $row['image_path'];
-                
-                // הפניה לפי התפקיד
-                if ($row['Role'] == 2) {
-                    header('Location: admin.php');
-                    exit();
-                } else if ($row['Role'] == 1) {
-                    header('Location: trainer.php');
-                    exit();
-                } else {
-                    header('Location: home.php');
-                    exit();
-                }
-            } else {
-                // סיסמה שגויה - עדכון נסיונות
-                $newAttempts = $row['login_attempts'] + 1;
-                $updateQuery = "UPDATE users SET login_attempts = ?, last_attempt = NOW() WHERE userId = ?";
-                $updateStmt = $con->prepare($updateQuery);
-                $updateStmt->bind_param("is", $newAttempts, $id);
-                $updateStmt->execute();
-                
-                if ($newAttempts >= 3) {
-                    // הגיע ל-3 נסיונות - חסימה ושליחת קוד
-                    $verificationCode = generateVerificationCode();
-                    $expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-                    
-                    // שמירת קוד במסד נתונים
-                    $codeQuery = "UPDATE users SET verification_code = ?, code_expiry = ? WHERE userId = ?";
-                    $codeStmt = $con->prepare($codeQuery);
-                    $codeStmt->bind_param("sss", $verificationCode, $expiry, $id);
-                    $codeStmt->execute();
-                    
-                    // שליחת מייל עם קוד
-                    if (sendVerificationCode($row['Email'], $row['FirstName'], $verificationCode)) {
-                        $_SESSION['blocked_user_id'] = $id;
-                        $_SESSION['show_verification'] = true;
-                        echo "<script>
-                            alert('החשבון נחסם לאחר 3 נסיונות כושלים. קוד אימות נשלח למייל שלך.');
-                            window.location.reload();
-                        </script>";
-                    } else {
-                        echo "<script>alert('שגיאה בשליחת מייל האימות. פנה למנהל המערכת.');</script>";
-                    }
-                } else {
-                    // עדיין יש נסיונות
-                    $remaining = 3 - $newAttempts;
-                    echo "<script>alert('שם משתמש או סיסמה שגויים. נותרו לך $remaining נסיונות');</script>";
-                }
-            }
         }
-    } else {
-        echo "<script>alert('משתמש לא קיים במערכת');</script>";
     }
 }
 ?>
@@ -471,8 +469,8 @@ if (isset($_POST['bt']) && $_POST['Id'] != null && $_POST['password'] != null) {
                     <input type='password' name='password' id="password" required placeholder='Enter your Password' />
                 </div>
                 <button class="login" type='submit' name='bt' id="loginBtn" disabled>Login</button>
-                <div class="ques">Do not have an account?</div>
                 <button class="signup" type='button' onclick="window.location.href='register.php'">Sign up</button>
+                <button class="signup" type='submit' name='forgot_password'>Forgot Password?</button>
             </form>
         </div>
 
@@ -488,7 +486,7 @@ if (isset($_POST['bt']) && $_POST['Id'] != null && $_POST['password'] != null) {
                 
                 <div class="input-box">
                     <i class="fa fa-key"></i>
-                    <input type='text' name='verification_code' class="code-input" required placeholder='000000' maxlength='6' />
+                    <input type='text' name='verification_code' id='verificationCode' class="code-input" required placeholder='000000' maxlength='6' />
                 </div>
                 
                 <div class="info-text">
@@ -497,7 +495,7 @@ if (isset($_POST['bt']) && $_POST['Id'] != null && $_POST['password'] != null) {
                 </div>
                 
                 <input type='hidden' name='user_id' value='<?php echo $_SESSION['blocked_user_id'] ?? ''; ?>' />
-                <button class="login" type='submit' name='verify_code'>Verify Code</button>
+                <button class="login" type='submit' name='verify_code' id="verifyBtn" disabled>Verify Code</button>
                 <button class="back-btn" type='button' onclick="goBackToLogin()">Back to Login</button>
             </form>
         </div>
@@ -505,11 +503,17 @@ if (isset($_POST['bt']) && $_POST['Id'] != null && $_POST['password'] != null) {
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // עבור דף ההתחברות הרגיל
             const idField = document.getElementById('Id');
             const passwordField = document.getElementById('password');
             const loginBtn = document.getElementById('loginBtn');
+            
+            // עבור דף האימות
+            const verificationCodeField = document.getElementById('verificationCode');
+            const verifyBtn = document.getElementById('verifyBtn');
 
-            function checkFields() {
+            // פונקציה לבדיקת שדות ההתחברות
+            function checkLoginFields() {
                 if (idField && passwordField && loginBtn) {
                     if (idField.value.trim() !== '' && passwordField.value.trim() !== '') {
                         loginBtn.disabled = false;
@@ -519,53 +523,53 @@ if (isset($_POST['bt']) && $_POST['Id'] != null && $_POST['password'] != null) {
                 }
             }
 
-            if (idField && passwordField) {
-                idField.addEventListener('input', checkFields);
-                passwordField.addEventListener('input', checkFields);
+            // פונקציה לבדיקת שדה קוד האימות
+            function checkVerificationField() {
+                if (verificationCodeField && verifyBtn) {
+                    if (verificationCodeField.value.trim().length === 6) {
+                        verifyBtn.disabled = false;
+                    } else {
+                        verifyBtn.disabled = true;
+                    }
+                }
             }
 
-            // עיצוב שדה קוד האימות
-            const codeInput = document.querySelector('.code-input');
-            if (codeInput) {
-                codeInput.addEventListener('input', function(e) {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            // אירועים לשדות ההתחברות
+            if (idField) {
+                idField.addEventListener('input', checkLoginFields);
+            }
+            if (passwordField) {
+                passwordField.addEventListener('input', checkLoginFields);
+            }
+
+            // אירועים לשדה קוד האימות
+            if (verificationCodeField) {
+                verificationCodeField.addEventListener('input', function() {
+                    // מגביל רק למספרים
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    checkVerificationField();
                 });
             }
+
+            // בדיקה ראשונית
+            checkLoginFields();
+            checkVerificationField();
         });
 
-        function showVerificationSection() {
-            document.getElementById('login-section').classList.add('hide');
-            document.getElementById('verification-section').classList.remove('hide');
-            document.getElementById('verification-section').classList.add('show');
-            document.getElementById('reset-password-section').classList.add('hide');
-        }
-
-        function showResetPasswordSection() {
-            document.getElementById('login-section').classList.add('hide');
-            document.getElementById('verification-section').classList.add('hide');
-            document.getElementById('reset-password-section').classList.remove('hide');
-            document.getElementById('reset-password-section').classList.add('show');
-        }
-
+        // פונקציה לחזרה לדף ההתחברות
         function goBackToLogin() {
-            // ניקוי משתני Session דרך AJAX
-            fetch('login.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'clear_session=true'
-            }).then(() => {
-                window.location.href = 'login.php';
-            });
+            document.getElementById('verification-section').classList.remove('show');
+            document.getElementById('verification-section').classList.add('hide');
+            document.getElementById('login-section').classList.remove('hide');
+            document.getElementById('login-section').classList.add('show');
+            
+            <?php 
+            if (isset($_SESSION['show_verification'])) {
+                unset($_SESSION['show_verification']);
+                unset($_SESSION['blocked_user_id']);
+            }
+            ?>
         }
-
-        // בדיקה אם צריך להציג דף אימות
-        <?php if (isset($_SESSION['show_verification'])): ?>
-        window.addEventListener('load', function() {
-            showVerificationSection();
-        });
-        <?php endif; ?>
     </script>
 </body>
 </html>

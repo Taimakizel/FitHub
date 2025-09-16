@@ -123,6 +123,7 @@
 
         th, td {
             padding: 12px;
+            border:solid black 1px;
         }
 
         th {
@@ -169,9 +170,8 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            
+            height:37px;
         }
-        
         .edit-btn, .delete-btn {
             background-color:rgb(186, 213, 170);
             border: none;

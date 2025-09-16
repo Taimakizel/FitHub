@@ -272,7 +272,7 @@ $expensesResult = $con->query($expensesQuery);
                     <div class="form-group">
                         <label for="expense_type">Expense Type:</label>
                         <select name="expense_type" required>
-                            <option value="">-- Select Type --</option>
+                            <option value="">Select Type</option>
                             <option value="equipment">Equipment</option>
                             <option value="maintenance">Maintenance</option>
                             <option value="supplies">Supplies</option>
@@ -284,7 +284,7 @@ $expensesResult = $con->query($expensesQuery);
 
                     <div class="form-group">
                         <label for="category">Category:</label>
-                        <input type="text" name="category" placeholder="e.g., Gym Equipment, Cleaning, etc." required>
+                        <input type="text" name="category" placeholder="Gym Equipment, Cleaning ,..." required>
                     </div>
 
                     <div class="form-group">

@@ -66,7 +66,115 @@ if (isset($_POST['reset_password'])) {
     <title>FitHub - Reset Password</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* Your CSS stays exactly the same */
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: url('images/gym.jpeg') no-repeat center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Times New Roman;
+            padding: 20px;
+        }
+
+        .reset-box {
+            position: relative;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .reset-box .p {
+            font-size: 28px;
+            margin-bottom: 25px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            background: rgba(25, 63, 92, 0.7);
+            color: #fff;
+        }
+
+        input::placeholder {
+            color: rgba(223, 222, 222, 0.7);
+            text-align: left;
+        }
+
+        input:focus {
+            outline: none;
+            background: rgba(25, 63, 92, 0.9);
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 12px;
+            background: none;
+            border: 2px solid #ccc;
+            color: #1a1a1a;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+            margin-bottom: 20px;
+        }
+
+        .verify-btn:hover:enabled {
+            background-color: white;
+        }
+
+        .verify-btn:disabled {
+            background: none;
+            border: 2px solid #ccc;
+            cursor: not-allowed;
+        }
+
+        .email-info {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .back-link a {
+            color: #fff;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>

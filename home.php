@@ -19,7 +19,6 @@ while ($row = $res->fetch_assoc()) {
 }
 $userTrainingsList = empty($userTrainings) ? '0' : implode(',', $userTrainings);
 
-// שלב 1: מציאת משתמשים שדומים לו - נרשמו לאותם אימונים
 $similarUsers = [];
 $res = $con->query("
     SELECT DISTINCT userId
@@ -34,7 +33,6 @@ $recommendedTrainings = [];
 if (!empty($similarUsers) && $role == 0) {
     $similarUsersList = implode(',', $similarUsers);
 
-    // שלב 2: אימונים שהמשתמשים הדומים נרשמו אליהם, אבל המשתמש הנוכחי לא
     $res = $con->query("
         SELECT t.*, COUNT(*) AS relevance
         FROM registeration r
@@ -43,10 +41,11 @@ if (!empty($similarUsers) && $role == 0) {
           AND r.trainingNum NOT IN ($userTrainingsList)
           AND CONCAT(t.Date, ' ', t.Time) >= NOW()
         GROUP BY r.trainingNum
-        ORDER BY relevance DESC
+        ORDER BY relevance DESC 
         LIMIT 3
     ");
-
+    // order by relevance - הצגת האימונים לפי פופולריות 
+    // array for 3 trainings
     while ($row = $res->fetch_assoc()) {
         $recommendedTrainings[] = $row;
     }

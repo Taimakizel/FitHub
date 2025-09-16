@@ -328,6 +328,9 @@ $expensesCategoryResult = $con->query($expensesCategoryQuery);
             <a href="home.php" class="btn">
                 <i class="fas fa-home"></i>
             </a>
+            <a href="profile.php" class="btn">
+                <i class="fas fa-user"></i>
+            </a>
         </div>
     </div>
 

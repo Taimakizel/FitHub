@@ -405,7 +405,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete_card'])) {
       
       <!-- קטע עדכון סיסמה -->
       <div class="password-section">
-        <h3 style="margin: 15px 0; color: rgba(0, 0, 0, 0.7);">Change Password (Optional)</h3>
+        <h3 style="margin: 15px 0; color: rgba(0, 0, 0, 0.7);">Change Password</h3>
         <input name="new_password" id="new_password" placeholder="New Password (min 6 chars)" type="password" minlength="6">
         <div class="strength-indicator">
           <div class="strength-fill" id="strengthFill"></div>

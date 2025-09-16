@@ -5,25 +5,32 @@
     } 
     $flag=0;
     if(isset($_POST['bt'])!=null){
-        if(isset($_POST['id'])!=null &&isset($_POST['Fname'])!=null&& isset($_POST['Lname'])!=null&& isset($_POST['Email'])!=null && isset($_POST['password'])!=null){
+        if(isset($_POST['id'])!=null &&isset($_POST['Fname'])!=null&& isset($_POST['Lname'])!=null&& isset($_POST['Email'])!=null && isset($_POST['password'])!=null && isset($_POST['confirm_password'])!=null){
             $id= $_POST['id'];
             $Fname= $_POST['Fname'];
             $Lname= $_POST['Lname'];
             $Email= $_POST['Email'];
             $Phone= $_POST['Phone'];
             $pass=$_POST['password'];
-            $sql = "SELECT * FROM users WHERE userId = '$id'";
-            $result = $con->query($sql);
-            if ($result->num_rows > 0) {
-                    echo "<script>alert('Error: User with the given ID or Email already exists.');</script>";
-                    exit();
-            }
-            $sql = "INSERT INTO users (userId, FirstName, LastName, Email, Phone, Password , Role) VALUES ('$id', '$Fname', '$Lname', '$Email','$Phone', '$pass',0)";
-            if ($con->query($sql) === TRUE) {
-                header('Location: login.php');
-                exit();                
+            $confirm_pass=$_POST['confirm_password'];
+            
+            // בדיקה אם הסיסמאות תואמות
+            if($pass !== $confirm_pass) {
+                echo "<script>alert('Error: Passwords do not match.');</script>";
             } else {
-                echo $con->error;
+                $sql = "SELECT * FROM users WHERE userId = '$id'";
+                $result = $con->query($sql);
+                if ($result->num_rows > 0) {
+                        echo "<script>alert('Error: User with the given ID or Email already exists.');</script>";
+                        exit();
+                }
+                $sql = "INSERT INTO users (userId, FirstName, LastName, Email, Phone, Password , Role) VALUES ('$id', '$Fname', '$Lname', '$Email','$Phone', '$pass',0)";
+                if ($con->query($sql) === TRUE) {
+                    header('Location: login.php');
+                    exit();                
+                } else {
+                    echo $con->error;
+                }
             }
         } else {
             echo "Please fill in all fields.";
@@ -98,7 +105,8 @@
 
         input:focus {
             outline: none;
-            background: rgba(25, 63, 92, 0.9);        }
+            background: rgba(25, 63, 92, 0.9);        
+        }
 
         .signup {
             width:100%;
@@ -138,6 +146,33 @@
         .login-link a:hover {
             color:black;
         }
+
+        .password-strength {
+            text-align: right;
+            font-size: 12px;
+            margin-top: -15px;
+            margin-bottom: 15px;
+        }
+
+        .password-match {
+            border: 2px solid #4caf50 !important;
+        }
+
+        .password-mismatch {
+            border: 2px solid #f44336 !important;
+        }
+
+        .strength-weak { color: #f44336; }
+        .strength-fair { color: #ff9800; }
+        .strength-good { color: #2196f3; }
+        .strength-strong { color: #4caf50; }
+
+        .confirm-password-feedback {
+            text-align: right;
+            font-size: 12px;
+            margin-top: -15px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -150,6 +185,9 @@
         <input type="email" name="Email" id="Email" required placeholder="Enter your Email" />
         <input type="number_format" name="Phone" id="Phone" required placeholder="Enter your Phone Number"  />
         <input type="password" name="password" id="password" required placeholder="Enter your Password" />
+        <div class="password-strength" id="passwordStrength"></div>
+        <input type="password" name="confirm_password" id="confirm_password" required placeholder="Confirm your Password" />
+        <div class="confirm-password-feedback" id="confirmFeedback"></div>
         <button type="submit" name="bt" id="signupBtn" disabled class="signup">sign up</button>
         <div class="login-link">
             already have account? 
@@ -165,16 +203,98 @@
         const emailField = document.getElementById('Email');
         const phoneField = document.getElementById('Phone');
         const passwordField = document.getElementById('password');
+        const confirmPasswordField = document.getElementById('confirm_password');
         const signupBtn = document.getElementById('signupBtn');
+        const passwordStrength = document.getElementById('passwordStrength');
+        const confirmFeedback = document.getElementById('confirmFeedback');
 
+        // פונקציה לבדיקת חוזק סיסמה
+        function checkPasswordStrength(password) {
+            if (!password) {
+                passwordStrength.textContent = '';
+                return 0;
+            }
+
+            let strength = 0;
+            let feedback = 'חלשה';
+            let className = 'strength-weak';
+
+            if (password.length >= 6) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+            switch(strength) {
+                case 0:
+                case 1:
+                    feedback = 'Very Weak';
+                    className = 'strength-weak';
+                    break;
+                case 2:
+                    feedback = 'Weak';
+                    className = 'strength-weak';
+                    break;
+                case 3:
+                    feedback = 'Fair';
+                    className = 'strength-fair';
+                    break;
+                case 4:
+                    feedback = 'Good';
+                    className = 'strength-good';
+                    break;
+                case 5:
+                    feedback = 'Strong';
+                    className = 'strength-strong';
+                    break;
+            }
+
+            passwordStrength.textContent = `Password strength: ${feedback}`;
+            passwordStrength.className = `password-strength ${className}`;
+            return strength;
+        }
+
+        // פונקציה לבדיקת תאימות סיסמאות
+        function checkPasswordMatch() {
+            const password = passwordField.value;
+            const confirmPassword = confirmPasswordField.value;
+
+            if (!confirmPassword) {
+                confirmFeedback.textContent = '';
+                confirmPasswordField.className = '';
+                return false;
+            }
+
+            if (password === confirmPassword) {
+                confirmFeedback.textContent = 'Passwords match ✓';
+                confirmFeedback.style.color = '#4caf50';
+                confirmPasswordField.classList.remove('password-mismatch');
+                confirmPasswordField.classList.add('password-match');
+                return true;
+            } else {
+                confirmFeedback.textContent = 'Passwords do not match ✗';
+                confirmFeedback.style.color = '#f44336';
+                confirmPasswordField.classList.remove('password-match');
+                confirmPasswordField.classList.add('password-mismatch');
+                return false;
+            }
+        }
+
+        // פונקציה לבדיקת כל השדות
         function checkFields() {
+            const passwordStrengthGood = checkPasswordStrength(passwordField.value) >= 2;
+            const passwordsMatch = checkPasswordMatch();
+            
             if (
                 idField.value.trim() !== '' &&
                 FnameField.value.trim() !== '' &&
                 LnameField.value.trim() !== '' &&
                 emailField.value.trim() !== '' &&
                 phoneField.value.trim() !== '' &&
-                passwordField.value.trim() !== ''
+                passwordField.value.trim() !== '' &&
+                confirmPasswordField.value.trim() !== '' &&
+                passwordStrengthGood &&
+                passwordsMatch
             ) {
                 signupBtn.disabled = false;
             } else {
@@ -182,7 +302,19 @@
             }
         }
 
-        [idField, FnameField, LnameField, emailField, phoneField, passwordField].forEach(field => {
+        // הוספת event listeners
+        passwordField.addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+            checkPasswordMatch();
+            checkFields();
+        });
+
+        confirmPasswordField.addEventListener('input', function() {
+            checkPasswordMatch();
+            checkFields();
+        });
+
+        [idField, FnameField, LnameField, emailField, phoneField].forEach(field => {
             field.addEventListener('input', checkFields);
         });
     });
