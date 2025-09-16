@@ -10,7 +10,7 @@ if (!isset($_SESSION['userId'])) {
 }
 $userId = $_SESSION['userId'];
 $id = $userId['userId'];
-
+/////////////////////////////////////////////////
 // אלגוריתם למציאת סוג האימון המועדף על הלקוח
 $preferredTypeQuery = "
     SELECT t.Type, COUNT(*) as count
