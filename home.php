@@ -11,27 +11,29 @@ if (!isset($_SESSION['userId'])) {
 $userId = $_SESSION['userId'];
 $id = $userId['userId'];
 $role = $_SESSION['Role'];
-
-$userTrainings = [];
-$res = $con->query("SELECT trainingNum FROM registeration WHERE userId = $id");
+/// אלגוריתם סינון שיתופי 
+// 
+$userTrainings = []; //לאחסון כל האימונים למתאמן המחובר
+$res = $con->query("SELECT trainingNum FROM registeration WHERE userId = $id"); // מחזירה מס' האימונים שהמתאמן הנוכחי נרשם אליהם
 while ($row = $res->fetch_assoc()) {
     $userTrainings[] = $row['trainingNum'];
-}
+} // עוברים בלולאה על כל שורה שהחזירה השאילתה ומכניסים את הערך של מזהה האימון לתוך המערך 
 $userTrainingsList = empty($userTrainings) ? '0' : implode(',', $userTrainings);
-
+// בדיקה אם המערך ריק , מציבים בתוך המחרוזת 0 אחרת מחברים מס אימון למחרוזת מופרדת בפסיקים
 $similarUsers = [];
 $res = $con->query("
     SELECT DISTINCT userId
     FROM registeration
     WHERE trainingNum IN ($userTrainingsList) AND userId != $id
-");
+"); // מחפשת משתמשים שנרשמו לאותם אימונים
+// DISTINCT מבטיחהמ שהערכים יהיו ללא כפוליות 
 while ($row = $res->fetch_assoc()) {
     $similarUsers[] = $row['userId'];
 }
-
+// הלולאה יוצרת מערך שמכיל כל המשתמשים שדומים למשתמש המחובר 
 $recommendedTrainings = [];
-if (!empty($similarUsers) && $role == 0) {
-    $similarUsersList = implode(',', $similarUsers);
+if (!empty($similarUsers) && $role == 0) { //בדיקה אם נמצאו משתמשים דומים
+    $similarUsersList = implode(',', $similarUsers); // ממרים את המערך למחרוזת מופרדת בפסיקים
 
     $res = $con->query("
         SELECT t.*, COUNT(*) AS relevance
@@ -49,7 +51,7 @@ if (!empty($similarUsers) && $role == 0) {
     while ($row = $res->fetch_assoc()) {
         $recommendedTrainings[] = $row;
     }
-}
+} // יצירת מערך שמכיל האימונים במומלצים למשתמש המחובר
 ?>
 <!DOCTYPE html>
 <html lang="en">
