@@ -569,13 +569,13 @@ session_start();
                     <a href="https://www.facebook.com/CrossFitNamal/?locale=he_IL" target="_blank" class="social-item facebook">
                         <i class="fab fa-facebook-f"></i>
                         <div>Facebook</div>
-                        <small>/FitHubGym</small>
+                        <small>FitHubGym</small>
                     </a>
                     
                     <a href="https://api.whatsapp.com/send?phone=972524445050&text=%D7%90%D7%A0%D7%90%20%D7%97%D7%96%D7%A8%D7%95%20%D7%90%D7%9C%D7%99%20" target="_blank" class="social-item whatsapp">
                         <i class="fab fa-whatsapp"></i>
                         <div>WhatsApp</div>
-                        <small>Chat with us</small>
+                        <small>Chat with us </small>
                     </a>
                     
                     <a href="mailto:taimakizel18@gmail.com" class="social-item email">
