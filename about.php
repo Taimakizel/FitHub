@@ -477,7 +477,7 @@ session_start();
         <div class="full-width-section">
             <h2 style="font-size: 36px; margin-bottom: 20px; color: rgb(168, 240, 165);">
                 <i class="fas fa-heart"></i>
-                Our Values
+                Our Values 
             </h2>
             <p style="font-size: 18px; margin-bottom: 40px;">The principles that guide everything we do</p>
             
