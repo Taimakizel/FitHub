@@ -472,7 +472,7 @@ session_start();
                 </div>
             </div>
         </div>
-
+        
         <!-- Values Section -->
         <div class="full-width-section">
             <h2 style="font-size: 36px; margin-bottom: 20px; color: rgb(168, 240, 165);">
